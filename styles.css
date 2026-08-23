@@ -1,0 +1,425 @@
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #fff;
+  background: #1a1520;
+}
+
+/* ---------- background slideshow ---------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(140deg, #3b2b4f 0%, #7b4a63 45%, #c2745f 100%);
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: contain; /* whole photo visible, never cropped */
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.slide.is-active { opacity: 1; }
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.5));
+  transition: opacity 400ms ease;
+}
+
+/* No photos loaded — the gradient underneath doesn't need heavy shading. */
+.no-photos .scrim { opacity: 0.35; }
+
+/* ---------- arrows ---------- */
+
+.arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 4px;
+  font-size: 30px;
+  line-height: 1;
+  color: #fff;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 200ms ease, transform 200ms ease;
+}
+
+/* display:grid above would otherwise beat the UA rule for [hidden] */
+.arrow[hidden] { display: none; }
+
+.arrow:hover { background: rgba(0, 0, 0, 0.55); }
+.arrow:active { transform: translateY(-50%) scale(0.94); }
+.arrow:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.arrow--prev { left: 20px; }
+.arrow--next { right: 20px; }
+
+/* ---------- card ---------- */
+
+/* Fixed rather than flow-centered so the minimize animation is just a
+   change of `top` — a transitionable property. */
+.card {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  padding: 40px 32px 54px; /* bottom leaves room for the minimize chevron */
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 26px;
+  background: rgba(24, 18, 32, 0.42);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  transition:
+    top 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    padding 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 420ms ease;
+}
+
+/* ---------- minimized: dock to the bottom edge ---------- */
+
+/* Top padding makes room for the chevron, which moves up here when docked.
+   Docked, the card is chrome-free — the countdown and toggle float straight
+   over the photo with no panel behind them. */
+.is-minimized .card {
+  top: 100%;
+  transform: translate(-50%, -100%);
+  padding: 52px 28px 22px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.is-minimized .eyebrow,
+.is-minimized .meeting-date,
+.is-minimized .panel { display: none; }
+
+/* The meeting date normally separates these two; with it hidden the toggle
+   needs its own breathing room above, and nothing follows it below. */
+.is-minimized .toggle { margin: 20px auto 0; }
+
+/* Bare chevron — no border or fill, matching the slideshow arrows' weight.
+   Sits at the bottom edge when open, and at the top edge once docked. */
+.card__min {
+  position: absolute;
+  left: 50%;
+  bottom: 13px;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  border: 0;
+  background: none;
+  transition: color 200ms ease;
+}
+
+.is-minimized .card__min {
+  bottom: auto;
+  top: 13px;
+}
+
+.card__min:hover { color: #fff; }
+
+.card__min:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Stretched horizontally so it reads as a wide, flat chevron. */
+.card__chev {
+  font-size: 26px;
+  line-height: 1;
+  transform: scaleX(1.7);
+  transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.is-minimized .card__chev { transform: scaleX(1.7) rotate(180deg); }
+
+/* Script face for the header — fallbacks are the system's own calligraphic
+   faces, so it still reads as handwriting if Google Fonts can't load. */
+.eyebrow {
+  margin: 0 0 20px;
+  font-family: "Great Vibes", "Snell Roundhand", "Apple Chancery", "Segoe Script", cursive;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+/* ---------- countdown ---------- */
+
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.countdown[hidden] { display: none; }
+
+.tile {
+  padding: 14px 4px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.tile__num {
+  display: block;
+  font-size: clamp(28px, 8vw, 38px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.tile__label {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.reunited {
+  margin: 8px 0;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.meeting-date {
+  margin: 16px 0 26px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+/* ---------- toggle ---------- */
+
+.toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 5px;
+  margin: 0 auto 26px;
+  width: min(260px, 100%);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle__pill {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: calc(50% - 5px);
+  height: calc(100% - 10px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle__pill.is-right { transform: translateX(100%); }
+
+.toggle__btn {
+  position: relative;
+  z-index: 1;
+  padding: 10px 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.toggle__btn[aria-selected="true"] { color: #241a2e; }
+.toggle__btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ---------- panel ---------- */
+
+.panel__city {
+  margin: 0;
+  font-family: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.panel__time {
+  margin: 6px 0 2px;
+  font-size: clamp(38px, 11vw, 50px);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.panel__date {
+  margin: 0 0 22px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.weather {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* the hi/lo drops to its own line before anything clips */
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.09);
+  text-align: left;
+}
+
+.weather__icon { font-size: 34px; line-height: 1; }
+
+/* Sized to its content so the hi/lo stays beside the temperature and the
+   map keeps the far right; min-width stops the text collapsing when narrow. */
+.weather__body { flex: 0 1 auto; min-width: 82px; }
+
+.weather__temp {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* High over low. As a direct child of .weather it inherits the row's
+   align-items: center, so it sits centred on the whole row. */
+.weather__range {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  margin: 0;
+  line-height: 1.35;
+  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.weather__label {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+/* ---------- map ---------- */
+
+.weather__map {
+  flex: none;
+  width: 104px;
+  height: auto;
+  margin-left: auto; /* pin it to the right edge of the row */
+  overflow: visible;
+}
+
+.map__land {
+  fill: rgba(255, 255, 255, 0.2);
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+/* Two layers on purpose: the wrapper owns the slow cross-fade between people,
+   the path owns the beat. Sharing one element would make the animation
+   override the transition and the switch would snap. */
+.map__pin {
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+body[data-person="john"] .map__pin[data-pin="john"],
+body[data-person="mary"] .map__pin[data-pin="mary"] { opacity: 1; }
+
+.map__heart {
+  fill: #ff5f7e;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Never fades all the way out — the pin should stay findable mid-blink. */
+@keyframes heartbeat {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.78); }
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 480px) {
+  .card { padding: 32px 20px 50px; }
+
+  .is-minimized .card { padding: 50px 16px 18px; }
+
+  .countdown { grid-template-columns: repeat(2, 1fr); }
+
+  .arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .arrow--prev { left: 8px; }
+  .arrow--next { right: 8px; }
+
+  /* Tighter weather row so the map still fits beside the temperature. */
+  .weather { gap: 10px; padding: 12px 14px; }
+  .weather__icon { font-size: 28px; }
+  .weather__temp { font-size: 22px; }
+  .weather__map { width: 74px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .toggle__pill,
+  .arrow,
+  .card,
+  .card__chev { transition: none; }
+
+  /* Pin stays visible, just stops pulsing and cross-fading. */
+  .map__heart { animation: none !important; }
+  .map__pin { transition: none; }
+}
