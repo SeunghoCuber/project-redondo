@@ -4,7 +4,7 @@
 
 // The next time you two are in the same place. Keep the -07:00 / -04:00
 // offset on the end so it means the same moment in both cities.
-const MEETING_DATE = new Date("2026-09-10T22:30:00-04:00");
+const MEETING_DATE = new Date("2026-10-08T10:30:00-04:00");
 
 // Each person gets their own slideshow — drop photos in images/john/ and
 // images/mary/, then list the filenames in that person's `slides`. Shots of
@@ -22,8 +22,7 @@ const PEOPLE = {
       "images/john/s4.jpeg", "images/john/s5.jpeg", "images/john/s6.jpeg",
       "images/john/s7.jpeg", "images/john/s8.jpeg", "images/john/s9.jpeg",
       "images/john/s10.jpeg", "images/john/s11.jpeg", "images/john/s12.jpeg",
-      "images/john/s13.jpeg", "images/john/s14.jpeg", "images/john/s15.jpeg",
-      "images/john/s16.jpeg", "images/john/s17.jpeg", "images/john/s18.jpeg",
+      "images/john/s13.jpeg", "images/john/s14.jpeg"
     ],
   },
   mary: {
@@ -35,6 +34,9 @@ const PEOPLE = {
     slides: [
       "images/mary/m1.jpeg", "images/mary/m2.jpeg", "images/mary/m3.jpeg",
       "images/mary/m4.jpeg", "images/mary/m5.jpeg", "images/mary/m6.jpeg",
+      "images/mary/m7.jpeg", "images/mary/m8.jpeg", "images/mary/m9.jpeg",
+      "images/mary/m10.jpeg", "images/mary/m11.jpeg", "images/mary/m12.jpeg",
+      "images/mary/m13.jpeg", "images/mary/m14.jpeg"
     ],
   },
 };
@@ -46,6 +48,8 @@ const SHARED_SLIDES = [
   "images/shared/b2.jpeg",
   "images/shared/b3.jpeg",
   "images/shared/b4.jpeg",
+  "images/shared/b5.jpeg",
+  "images/shared/b6.jpeg"
 ];
 
 // Reshuffle both reels on every page load. Set to false for a fixed order.
