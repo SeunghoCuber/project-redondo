@@ -65,6 +65,12 @@ const SHUFFLE_SLIDES = true;
 
 /* ------------------------------------------------------------------ */
 
+// Day counters shown under the weather (calendar days since each date).
+const SINCE = [
+  { id: "since-manhattan", date: [2026, 7, 11] },
+  { id: "since-redondo", date: [2026, 8, 4] },
+];
+
 const SLIDE_INTERVAL = 8000;
 const WEATHER_REFRESH = 15 * 60 * 1000;
 const STORAGE_KEY = "redondo:person";
@@ -101,6 +107,17 @@ function renderMeetingDate() {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
   });
   $("meeting-date").textContent = fmt.format(MEETING_DATE);
+}
+
+/* ---------- day counters ---------- */
+
+function renderSince() {
+  const t = new Date();
+  const today = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
+  for (const { id, date: [y, m, d] } of SINCE) {
+    const days = Math.round((today - Date.UTC(y, m - 1, d)) / 86400000);
+    $(id).textContent = Math.max(days, 0);
+  }
 }
 
 /* ---------- clock ---------- */
@@ -383,9 +400,11 @@ function init() {
   // but the clock has to keep ticking after that.
   let countdownDone = renderCountdown();
   renderClock();
+  renderSince();
   setInterval(() => {
     if (!countdownDone) countdownDone = renderCountdown();
     renderClock();
+    renderSince();
   }, 1000);
 
   refreshAllWeather();
