@@ -4,7 +4,7 @@
 
 // The next time you two are in the same place. Keep the -07:00 / -04:00
 // offset on the end so it means the same moment in both cities.
-const MEETING_DATE = new Date("2026-10-29T10:30:00-04:00");
+const MEETING_DATE = new Date("2026-11-13T12:00:00-05:00");
 
 // Each person gets their own slideshow — drop photos in images/john/ and
 // images/mary/, then list the filenames in that person's `slides`. Shots of
